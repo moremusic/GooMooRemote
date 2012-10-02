@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 import android.util.Log;
 import android.widget.Toast;
 
-import android.net.wifi.WifiInfo;
+//import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.content.Context;
 
@@ -17,7 +17,7 @@ public class DeviceFinder {
 
 	private final Context context;
 	private WifiManager wifiManager;//wifi
-	private boolean active;
+//	private boolean active;
 	
 	public final static InetAddress MULTICAST_ADDRESS;
     public final static short MULTICAST_PORT = 1900;//¼s¼½¥Îªºport

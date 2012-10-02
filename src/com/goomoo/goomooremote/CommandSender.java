@@ -15,7 +15,8 @@ import java.util.Arrays;
 import javax.net.ssl.SSLException;
 
 import android.content.Context;
-import android.util.Log;
+//import android.database.CursorJoiner.Result;
+//import android.util.Log;
 import android.widget.Toast;
 
 public class CommandSender {
@@ -87,6 +88,10 @@ public class CommandSender {
 	private String readRegistrationReply(Reader reader) throws IOException {
 		reader.read(); // Unknown byte 0x02
 		String text1 = readText(reader); // Read "unknown.livingroom.iapp.samsung" for new RC and "iapp.samsung" for already registered RC
+		if (text1.length() == 0)
+		{
+		}
+		
 		char[] result = readCharArray(reader); // Read result sequence
 		if (Arrays.equals(result, ALLOWED_BYTES)) {
 			return ALLOWED;
@@ -122,6 +127,9 @@ public class CommandSender {
   		InputStream in = socket.getInputStream();
   		reader = new InputStreamReader(in);
   		String result = readRegistrationReply(reader);
+  		if (result.length() == 0)
+  		{
+  		}
         } catch (SSLException e) {
 			Toast.makeText(context, "CommandSender::init 1 " + e.toString(), 
 					Toast.LENGTH_LONG).show() ;
@@ -131,6 +139,7 @@ public class CommandSender {
 					Toast.LENGTH_LONG).show() ;
         	return false ;
         }
+        
 
         /*
         sender = new AnymoteSender(coreService);
@@ -167,9 +176,13 @@ public class CommandSender {
 		writeText(writer, TV_APP_STRING);
 		writeText(writer, getKeyPayload(key));
 		writer.flush();
-		int i = reader.read(); // Unknown byte 0x00
-		String t = readText(reader);  // Read "iapp.samsung"
-		char[] c = readCharArray(reader);
+		reader.read(); // Unknown byte 0x00
+		readText(reader);  // Read "iapp.samsung"
+		readCharArray(reader);
+		
+//		int i = reader.read(); // Unknown byte 0x00
+//		String t = readText(reader);  // Read "iapp.samsung"
+//		char[] c = readCharArray(reader);
 //		System.out.println(i);
 //		System.out.println(t);
 //		for (char a : c) System.out.println(Integer.toHexString(a));
