@@ -34,7 +34,7 @@ public class MainActivity extends Activity {
     String[] vItemText = new String[] {"TV Remote", "Game Pad", "Web Links",
     									"Setup"} ;
 	
-    private InetAddress deviceAddr ; 
+    private InetAddress inputDeviceAddr ;//額外輸入的 
     
 	//cur mode
 	private static int MODE_MAIN = -1 ;
@@ -45,11 +45,9 @@ public class MainActivity extends Activity {
 
 	int curMode ;
 	
-	
 	boolean findDevice ()
 	{
 		deviceFinder = new DeviceFinder (context) ;
-		commandSender = new CommandSender (context) ;
 		
 		if (!deviceFinder.checkWifi ())
 		{
@@ -60,18 +58,13 @@ public class MainActivity extends Activity {
 			return false ;
 		}
 		
+		deviceFinder.init() ;
+		
 			//先設定固定ip
-//			if(deviceFinder.find())
-		if (true)
+//		deviceFinder.find() ;
+		if(deviceFinder.find() != null)
 		{
-			if (commandSender.init(deviceAddr))
-				return true ;
-			else
-			{
-//				Toast.makeText(context, "broadcast fail!", 
-//						Toast.LENGTH_SHORT).show() ;
-				return false ;
-			}
+			return true ;
 		}else
 		{
 			//找不到smart tv
@@ -79,6 +72,12 @@ public class MainActivity extends Activity {
 									Toast.LENGTH_SHORT).show() ;
 			return false ;
 		}
+	}
+	
+	boolean initCommandSender (InetAddress addr)
+	{
+		commandSender = new CommandSender (context) ;
+		return commandSender.init(addr) ;
 	}
 
 	void initSetup ()
@@ -89,7 +88,7 @@ public class MainActivity extends Activity {
         
         final EditText ed = (EditText)findViewById (R.id.ed_ip) ;
 
-        String str = deviceAddr.toString() ;
+        String str = inputDeviceAddr.toString() ;
         String vStr[] = str.split("/") ;
 
 //        ed.requestFocus() ;
@@ -113,7 +112,20 @@ public class MainActivity extends Activity {
 	
 	void initTVRemote ()
 	{
-		if (findDevice ())
+		if (deviceFinder == null)
+			findDevice () ;
+		
+		if (commandSender == null)
+		{
+			if (deviceFinder.hasDevice())//用找到的
+				initCommandSender (deviceFinder.deviceAddr) ;
+			else//使用輸入的
+				initCommandSender (inputDeviceAddr) ;
+		}
+		
+//		if (findDevice ())
+//		if (deviceFinder.hasDevice())//有設備
+		if (true)
 		{
 			curMode = MODE_TV_REMOTE ;
 	        setContentView(R.layout.tv_remote);
@@ -362,11 +374,12 @@ public class MainActivity extends Activity {
 		ip[3] = (byte)5 ;
 	
 		try {
-			deviceAddr = InetAddress.getByAddress(ip) ;
+			inputDeviceAddr = InetAddress.getByAddress(ip) ;
 		} catch (UnknownHostException e) {
 		}
         
         initMainList () ;
+//        findDevice () ;
     }
 
     @Override
@@ -391,7 +404,7 @@ public class MainActivity extends Activity {
         	        EditText ed = (EditText)findViewById (R.id.ed_ip) ;
         	        String str = ""+ed.getText () ;
         	        try {
-						deviceAddr = InetAddress.getByName(str) ;
+						inputDeviceAddr = InetAddress.getByName(str) ;
 					} catch (UnknownHostException e) {
 						e.printStackTrace();
 					}
