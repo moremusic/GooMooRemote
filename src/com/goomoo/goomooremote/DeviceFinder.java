@@ -93,7 +93,7 @@ public class DeviceFinder {
 	
 	  public boolean checkWifi ()
 	  {
-		    wifiManager = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
+		    wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 
 		    return wifiManager.isWifiEnabled() ;
 	  }
