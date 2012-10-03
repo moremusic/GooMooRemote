@@ -65,12 +65,15 @@ public class MainActivity extends Activity {
 //		deviceFinder.find() ;
 		if(deviceFinder.find() != null)
 		{
+			//有找到
+			Toast.makeText(context, "find deivce!", Toast.LENGTH_SHORT).show() ;
+	        updateEditIP (deviceFinder.getDeviceAddr()) ;
+	         
 			return true ;
 		}else
 		{
 			//找不到smart tv
-			Toast.makeText(context, "no deivce!", 
-									Toast.LENGTH_SHORT).show() ;
+			Toast.makeText(context, "no deivce!", Toast.LENGTH_SHORT).show() ;
 			deviceFinder = null ;
 			return false ;
 		}
@@ -79,22 +82,49 @@ public class MainActivity extends Activity {
 	boolean initCommandSender (InetAddress addr)
 	{
 		commandSender = new CommandSender (context) ;
-		return commandSender.init(addr) ;
+		if (commandSender.init(addr))
+		{
+			return true ;
+		}else
+		{
+			commandSender = null ;
+			return false ;
+		}
 	}
 
+	void updateEditIP (InetAddress addr)
+	{
+        final EditText ed = (EditText)findViewById (R.id.ed_ip) ;
+//        String str = inputDeviceAddr.toString() ;
+        String str = addr.toString() ;
+        String vStr[] = str.split("/") ;
+
+//      ed.requestFocus() ;
+        ed.setText(vStr[1]) ;
+	}
+	
 	void initSetup ()
 	{
 		curMode = MODE_SETUP ;
 		
         setContentView(R.layout.setup);
+  
+    	updateEditIP (inputDeviceAddr) ;
         
-        final EditText ed = (EditText)findViewById (R.id.ed_ip) ;
+//        final EditText ed = (EditText)findViewById (R.id.ed_ip) ;
+        final Button btn = (Button)findViewById (R.id.btn_auto_detect) ;
 
-        String str = inputDeviceAddr.toString() ;
-        String vStr[] = str.split("/") ;
+//        String str = inputDeviceAddr.toString() ;
+//        String vStr[] = str.split("/") ;
 
 //        ed.requestFocus() ;
-        ed.setText(vStr[1]) ;
+//        ed.setText(vStr[1]) ;
+
+        btn.setOnClickListener(new OnClickListener (){
+        	public void onClick (View v){
+        		findDevice () ;
+        	}
+        }) ;
         
 //		InputMethodManager imm = (InputMethodManager) 
 //				getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -115,20 +145,24 @@ public class MainActivity extends Activity {
 	void initTVRemote ()
 	{
 //		if (deviceFinder == null)
-		findDevice () ;
+//		findDevice () ;
 		
 		if (commandSender == null)
 		{
 //			if (deviceFinder.hasDevice())//用找到的
 			if (deviceFinder != null)
-				initCommandSender (deviceFinder.deviceAddr) ;
+			{
+				initCommandSender (deviceFinder.getDeviceAddr()) ;
+			}
 			else//使用輸入的
+			{
 				initCommandSender (inputDeviceAddr) ;
+			}
 		}
 		
 //		if (findDevice ())
 //		if (deviceFinder.hasDevice())//有設備
-		if (true)
+		if (commandSender != null)
 		{
 			curMode = MODE_TV_REMOTE ;
 	        setContentView(R.layout.tv_remote);

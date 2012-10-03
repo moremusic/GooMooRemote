@@ -33,7 +33,7 @@ public class DeviceFinder {
     private String SEARCH_TEAMPLTE ; 
     private MulticastSocket socket ;
     
-	public InetAddress deviceAddr ;
+	private InetAddress deviceAddr ;
 
 	protected boolean isCSeries = false;
     
@@ -79,6 +79,11 @@ public class DeviceFinder {
 		  return deviceAddr != null ;
 	  }
 	  
+	  public InetAddress getDeviceAddr ()
+	  {
+		  return deviceAddr ;
+	  }
+	  
 	  private boolean procPacket (DatagramPacket packet)
 	  {
 			String data = new String(packet.getData(), 0, packet.getLength());
@@ -111,6 +116,7 @@ public class DeviceFinder {
 	  
 	  public InetAddress find ()
 	  {
+		  deviceAddr = null ;
 			try {
 				String searchMessage = String.format(SEARCH_TEAMPLTE, REMOCON_SN, 3);
 				byte[] buffer;
@@ -132,7 +138,7 @@ public class DeviceFinder {
 			//多等待幾次
     		DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
     		final int CHECK_COUNT = 3 ;
-    		final int WAIT_TIME = 250 ;
+    		final int WAIT_TIME = 1000 ;
     		int timeOutCount =0  ;
 			while (true)
 			{
