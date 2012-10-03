@@ -5,6 +5,7 @@ import java.io.InterruptedIOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import android.util.Log;
 import android.widget.Toast;
@@ -128,19 +129,33 @@ public class DeviceFinder {
 			
 			
 			byte[] buffer = new byte[8192];
-			while (true) 
+			//多等待幾次
+    		DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+    		final int CHECK_COUNT = 3 ;
+    		final int WAIT_TIME = 250 ;
+    		int timeOutCount =0  ;
+			while (true)
 			{
 			      try {
-		    		DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+		    		socket.setSoTimeout(WAIT_TIME) ;
 		    		socket.receive(packet);
 		    		
 		    		procPacket (packet) ;
 		    		if (deviceAddr != null)
 		    			break ;//有找到
-		    		
-			      } catch (InterruptedIOException e) {
-						Toast.makeText(context, "DeviceFinder::find 2 "+e.toString(), 
+			      } catch (SocketTimeoutException e)
+			      {
+						Toast.makeText(context, "DeviceFinder::find 1 "+e.toString(), 
 								Toast.LENGTH_LONG).show() ;
+			    	  break ;
+			      } catch (InterruptedIOException e) {
+			    	  	timeOutCount ++ ;
+			    	  	if (timeOutCount > CHECK_COUNT)
+			    	  	{
+			    	  		Toast.makeText(context, "DeviceFinder::find 2 "+e.toString(), 
+								Toast.LENGTH_LONG).show() ;
+			    	  		break ;
+			    	  	}
 			      }	catch (IOException e) {
 			          // SocketException - stop() was called
 						Toast.makeText(context, "DeviceFinder::find 3 "+e.toString(), 

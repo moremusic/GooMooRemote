@@ -47,7 +47,8 @@ public class MainActivity extends Activity {
 	
 	boolean findDevice ()
 	{
-		deviceFinder = new DeviceFinder (context) ;
+		if (deviceFinder == null)
+			deviceFinder = new DeviceFinder (context) ;
 		
 		if (!deviceFinder.checkWifi ())
 		{
@@ -70,6 +71,7 @@ public class MainActivity extends Activity {
 			//找不到smart tv
 			Toast.makeText(context, "no deivce!", 
 									Toast.LENGTH_SHORT).show() ;
+			deviceFinder = null ;
 			return false ;
 		}
 	}
@@ -112,12 +114,13 @@ public class MainActivity extends Activity {
 	
 	void initTVRemote ()
 	{
-		if (deviceFinder == null)
-			findDevice () ;
+//		if (deviceFinder == null)
+		findDevice () ;
 		
 		if (commandSender == null)
 		{
-			if (deviceFinder.hasDevice())//用找到的
+//			if (deviceFinder.hasDevice())//用找到的
+			if (deviceFinder != null)
 				initCommandSender (deviceFinder.deviceAddr) ;
 			else//使用輸入的
 				initCommandSender (inputDeviceAddr) ;
